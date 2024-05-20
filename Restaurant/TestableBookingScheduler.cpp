@@ -8,7 +8,7 @@ public:
     }
 
     time_t getNow(void) override {
-        return setSunDayOfWeek();
+        return (wday==0) ? setSunDayOfWeek(): setMonDayOfWeek();
     }
 
 private:
@@ -18,5 +18,10 @@ private:
         return mktime(&tmTime);
     }
 
+    time_t setMonDayOfWeek(void) {
+        tm tmTime = { 0, 0, 17, 20, 5 - 1, 2024 - 1900, 0, 0, -1 };
+        tmTime.tm_wday = wday;
+        return mktime(&tmTime);
+    }
     int wday = 0;
 };
