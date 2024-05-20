@@ -10,6 +10,7 @@ using std::vector;
 
 class BookingScheduler {
 public:
+    BookingScheduler() {}
     BookingScheduler(int capacityPerHour) :
         capacityPerHour{ capacityPerHour } {
         smsSender = new SmsSender();
@@ -34,14 +35,13 @@ public:
             throw std::runtime_error("Number of people is over restaurant capacity per hour");
         }
 
-        /*
+        
         // 일요일에는 시스템을 오픈하지 않는다.
-        time_t now = time(nullptr);
+        time_t now = getNow();
         if (getDayOfWeek(now) == "Sunday") {
             throw std::runtime_error("Booking system is not available on sunday");
         }
-        */
-
+        
         schedules.push_back(schedule);
 
         // 고객에게 SMS 발송
@@ -80,6 +80,10 @@ private:
         return string{ buffer };
     }
 
+    virtual time_t getNow(void) {
+        return time(nullptr);
+    }
+    
     int capacityPerHour;
     vector<Schedule*> schedules;
     SmsSender* smsSender;
