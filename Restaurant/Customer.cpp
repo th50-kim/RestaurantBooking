@@ -16,7 +16,7 @@ public:
 		email{ email } {
 	}
 
-	string getEmail() {
+	virtual string getEmail() {
 		return email;
 	}
 

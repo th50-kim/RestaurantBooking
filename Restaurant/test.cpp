@@ -5,6 +5,14 @@
 #include "TestableMailSender.cpp"
 #include "TestableBookingScheduler.cpp"
 
+class MockCustomer : public Customer {
+public:
+	MockCustomer(string name, string phoneNumber) :
+		Customer(name, phoneNumber) {}
+
+	MOCK_METHOD(string, getEmail, (), (override));
+};
+
 class BookingItem : public testing::Test {
 protected:
 	void SetUp() override {
@@ -13,6 +21,12 @@ protected:
 
 		bookingSchedule.setSmsSender(&sms);
 		bookingSchedule.setMailSender(&mail);
+
+		EXPECT_CALL(CUSTOMER, getEmail, (), ())
+			.WillRepeatedly(testing::Return(""));
+
+		EXPECT_CALL(CUSTOMER_WITH_MAIL, getEmail, (), ())
+			.WillRepeatedly(testing::Return("test@test.com"));
 	}
 
 public:
@@ -31,8 +45,12 @@ public:
 	tm NOT_ON_THE_HOUR;
 	tm ON_THE_HOUR;
 
-	Customer CUSTOMER{ "Fake name", "010-1234-5678" };
-	Customer CUSTOMER_WITH_MAIL{ "Fake name", "010-1234-5678", "aaa@bbb.com" };
+	MockCustomer CUSTOMER{ "Fake name", "010-1234-5678" };
+	MockCustomer CUSTOMER_WITH_MAIL{ "Fake name", "010-1234-5678" };
+
+//	Customer CUSTOMER{ "Fake name", "010-1234-5678" };
+//	Customer CUSTOMER_WITH_MAIL{ "Fake name", "010-1234-5678", "aaa@bbb.com" };
+	
 	const int UNDER_CAPACITY = 1;
 	const int CAPACITY_PER_HOUR = 3;
 
@@ -121,7 +139,6 @@ TEST_F(BookingItem, 현재날짜가_일요일인_경우_예약불가_예외처�
 	catch (std::runtime_error e) {
 		EXPECT_EQ(string{ e.what() }, string{ "Booking system is not available on sunday" });
 	}
-
 }
 
 TEST_F(BookingItem, 현재날짜가_일요일이_아닌경우_예약가능) {
