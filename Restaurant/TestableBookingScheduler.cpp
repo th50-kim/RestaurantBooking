@@ -1,27 +1,13 @@
 #include "BookingScheduler.cpp"
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 class TestableBookingScheduler : public BookingScheduler {
 public:
     TestableBookingScheduler() {}
-    TestableBookingScheduler(int capacity, int wday) :BookingScheduler(capacity), wday(wday)
+    TestableBookingScheduler(int capacity) :BookingScheduler(capacity)
     {
     }
 
-    time_t getNow(void) override {
-        return (wday==0) ? setSunDayOfWeek(): setMonDayOfWeek();
-    }
-
-private:
-    time_t setSunDayOfWeek(void) {
-        tm tmTime = { 0, 0, 17, 19, 5 - 1, 2024 - 1900, 0, 0, -1 };
-        tmTime.tm_wday = wday;
-        return mktime(&tmTime);
-    }
-
-    time_t setMonDayOfWeek(void) {
-        tm tmTime = { 0, 0, 17, 20, 5 - 1, 2024 - 1900, 0, 0, -1 };
-        tmTime.tm_wday = wday;
-        return mktime(&tmTime);
-    }
-    int wday = 0;
+    MOCK_METHOD(time_t, getNow, (), (override));
 };

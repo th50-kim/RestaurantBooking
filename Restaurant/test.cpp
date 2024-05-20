@@ -19,6 +19,9 @@ protected:
 		NOT_ON_THE_HOUR = getTime(2021, 3, 26, 9, 5);
 		ON_THE_HOUR= getTime(2021, 3, 26, 9, 0);
 
+		SUNDAY_ON_THE_HOUR = getTime(2024, 5, 19, 9, 5);
+		MONDAY_ON_THE_HOUR = getTime(2024, 5, 20, 9, 0);
+
 		bookingSchedule.setSmsSender(&sms);
 		bookingSchedule.setMailSender(&mail);
 
@@ -44,6 +47,9 @@ public:
 
 	tm NOT_ON_THE_HOUR;
 	tm ON_THE_HOUR;
+
+	tm SUNDAY_ON_THE_HOUR;
+	tm MONDAY_ON_THE_HOUR;
 
 	MockCustomer CUSTOMER{ "Fake name", "010-1234-5678" };
 	MockCustomer CUSTOMER_WITH_MAIL{ "Fake name", "010-1234-5678" };
@@ -130,7 +136,9 @@ TEST_F(BookingItem, 이메일이_있는_경우에는_이메일_발송) {
 
 TEST_F(BookingItem, 현재날짜가_일요일인_경우_예약불가_예외처리) {
 
-	TestableBookingScheduler testableBookingSchedule{ CAPACITY_PER_HOUR, 0 };
+	TestableBookingScheduler testableBookingSchedule{ CAPACITY_PER_HOUR};
+	EXPECT_CALL(testableBookingSchedule, getNow())
+		.WillRepeatedly(testing::Return(mktime(&SUNDAY_ON_THE_HOUR)));
 
 	try {
 		Schedule* schedule = new Schedule{ ON_THE_HOUR, UNDER_CAPACITY, CUSTOMER };
@@ -143,8 +151,10 @@ TEST_F(BookingItem, 현재날짜가_일요일인_경우_예약불가_예외처�
 }
 
 TEST_F(BookingItem, 현재날짜가_일요일이_아닌경우_예약가능) {
-	TestableBookingScheduler testableBookingSchedule{ CAPACITY_PER_HOUR, 1 };
+	TestableBookingScheduler testableBookingSchedule{ CAPACITY_PER_HOUR};
 
+	EXPECT_CALL(testableBookingSchedule, getNow())
+		.WillRepeatedly(testing::Return(mktime(&MONDAY_ON_THE_HOUR)));
 	try {
 		Schedule* schedule = new Schedule{ ON_THE_HOUR, UNDER_CAPACITY, CUSTOMER };
 		testableBookingSchedule.addSchedule(schedule);
