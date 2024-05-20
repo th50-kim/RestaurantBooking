@@ -56,8 +56,8 @@ public:
 
 	BookingScheduler bookingSchedule{ CAPACITY_PER_HOUR };
 
-	TestableSmsSender sms;
-	TestableMailSender mail;
+	testing::NiceMock<TestableSmsSender> sms;
+	testing::NiceMock<TestableMailSender> mail;
 
 };
 TEST_F(BookingItem, 예약은_정시에만_가능하다_정시가_아닌경우_예약불가) {
@@ -106,25 +106,26 @@ TEST_F(BookingItem, 시간대별_인원제한이_있다_같은_시간대가_다�
 
 TEST_F(BookingItem, 예약완료시_SMS는_무조건_발송) {
 	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER };
+
+	EXPECT_CALL(sms, send(schedule))
+		.Times(1);
 	bookingSchedule.addSchedule(schedule);
-
-	EXPECT_EQ(true, sms.isSendMethodIsCall());
-
 }
 
 TEST_F(BookingItem, 이메일이_없는_경우에는_이메일_미발송) {
 	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER };
+
+	EXPECT_CALL(mail, sendMail(schedule))
+		.Times(0);
+
 	bookingSchedule.addSchedule(schedule);
-
-	EXPECT_EQ(0, mail.getSendMethodIsCall());
-
 }
 
 TEST_F(BookingItem, 이메일이_있는_경우에는_이메일_발송) {
 	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER_WITH_MAIL };
+	EXPECT_CALL(mail, sendMail(schedule))
+		.Times(1);
 	bookingSchedule.addSchedule(schedule);
-
-	EXPECT_EQ(1, mail.getSendMethodIsCall());
 }
 
 TEST_F(BookingItem, 현재날짜가_일요일인_경우_예약불가_예외처리) {

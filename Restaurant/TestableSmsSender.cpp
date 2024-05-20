@@ -1,18 +1,11 @@
 #include "SmsSender.cpp"
 #include <iostream>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 class TestableSmsSender : public SmsSender {
 public:
-	void send(Schedule* schedule) override{
-		std::cout << "SMS Sender.send() for test" << std::endl;
-		sendMethodIsCall = true;
-	}
-
-	bool isSendMethodIsCall() {
-		return sendMethodIsCall;
-	}
-	
+	MOCK_METHOD(void, send, (Schedule*), (override));
 
 private:
-	bool sendMethodIsCall;
 };
