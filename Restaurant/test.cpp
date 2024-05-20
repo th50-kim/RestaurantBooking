@@ -111,7 +111,7 @@ TEST_F(BookingItem, 이메일이_있는_경우에는_이메일_발송) {
 
 TEST_F(BookingItem, 현재날짜가_일요일인_경우_예약불가_예외처리) {
 
-	TestableBookingScheduler testableBookingSchedule{ CAPACITY_PER_HOUR };
+	TestableBookingScheduler testableBookingSchedule{ CAPACITY_PER_HOUR, 0 };
 
 	try {
 		Schedule* schedule = new Schedule{ ON_THE_HOUR, UNDER_CAPACITY, CUSTOMER };
@@ -124,6 +124,14 @@ TEST_F(BookingItem, 현재날짜가_일요일인_경우_예약불가_예외처리) {
 
 }
 
-TEST(BookingSchedulerTest, 현재날짜가_일요일이_아닌경우_예약가능) {
+TEST_F(BookingItem, 현재날짜가_일요일이_아닌경우_예약가능) {
+	TestableBookingScheduler testableBookingSchedule{ CAPACITY_PER_HOUR, 1 };
 
+	try {
+		Schedule* schedule = new Schedule{ ON_THE_HOUR, UNDER_CAPACITY, CUSTOMER };
+		testableBookingSchedule.addSchedule(schedule);
+	}
+	catch (std::runtime_error e) {
+		FAIL();
+	}
 }
